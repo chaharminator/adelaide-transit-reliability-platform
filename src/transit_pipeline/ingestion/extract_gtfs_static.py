@@ -36,7 +36,7 @@ def extract_gtfs_static(
     print("Files extracted:")
 
     for file_name in extracted_files:
-        print(f"-{file_name}")
+        print(f"- {file_name}")
     return output_path
 
 def main():
