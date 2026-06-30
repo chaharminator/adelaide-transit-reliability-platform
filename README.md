@@ -21,6 +21,46 @@ The system ingests Adelaide Metro GTFS and GTFS Realtime data, stores raw data i
 
 A small machine learning component using Amazon SageMaker will be added to predict expected delay based on route, stop, day of week, and time of day.
 
+## Architecture Diagram
+
+```mermaid
+flowchart TD
+    A[Adelaide Metro GTFS Static Feed] --> B[Python Ingestion Script]
+
+    B --> C[Raw Layer<br/>data/raw<br/>GTFS ZIP File]
+
+    C --> D[Extraction Script]
+    D --> E[Bronze Layer<br/>data/bronze/gtfs_static<br/>Extracted GTFS .txt Files]
+
+    E --> F[Transformation Script<br/>pandas]
+    F --> G[Silver Layer<br/>data/silver/gtfs_static<br/>Cleaned CSV Tables]
+
+    G --> H[PostgreSQL Data Warehouse<br/>Future Step]
+    G --> I[AWS S3<br/>Future Cloud Storage]
+
+    I --> J[AWS Glue Crawler<br/>Future Step]
+    J --> K[Amazon Athena<br/>Future SQL Query Layer]
+
+    H --> L[FastAPI Service<br/>Future API Layer]
+    K --> L
+
+    L --> M[Transit Reliability Insights]
+    L --> N[Delay Prediction Endpoint<br/>Future SageMaker Integration]
+
+    N --> O[Amazon SageMaker<br/>Delay Prediction Model]
+```
+
+## Current Local Pipeline
+
+```mermaid
+flowchart LR
+    A[Download GTFS ZIP] --> B[Raw Layer]
+    B --> C[Extract ZIP]
+    C --> D[Bronze Layer]
+    D --> E[Clean GTFS Tables]
+    E --> F[Silver Layer]
+```
+
 ## Tech Stack
 
 - Python
@@ -43,3 +83,46 @@ A small machine learning component using Amazon SageMaker will be added to predi
 - Peak-hour delay pattern detection
 - FastAPI endpoints for reliability insights
 - Delay prediction model using SageMaker
+
+## Current Pipeline Progress
+
+The project currently supports the first batch ETL flow for Adelaide Metro GTFS static data:
+
+1. Downloads the latest GTFS static ZIP file into the raw data layer.
+2. Extracts GTFS text files into the bronze layer.
+3. Transforms selected GTFS files into cleaned silver-layer CSV tables.
+
+Current silver tables:
+
+- routes
+- stops
+- trips
+- stop_times
+
+## Local Pipeline Run
+
+To run the current pipeline locally:
+
+```powershell
+$env:PYTHONPATH="src"
+python scripts\run_pipeline.py
+```
+To run only the silver transformation step:
+
+```powershell
+$env:PYTHONPATH="src"
+python src\transit_pipeline\transformation\transform_gtfs_static.py
+```
+
+## GTFS Static Files Used in This Project
+
+The current pipeline extracts and processes the following GTFS static files:
+```markdown
+| File | Purpose |
+|---|---|
+| routes.txt | Contains public transport route information. |
+| stops.txt | Contains stop names and geographic coordinates. |
+| trips.txt | Contains individual trip records linked to routes and services. |
+| stop_times.txt | Contains scheduled arrival and departure times for each trip-stop sequence. |
+```
+These files are transformed into the silver layer for later use in route reliability metrics, stop-level analysis, and delay prediction features.
