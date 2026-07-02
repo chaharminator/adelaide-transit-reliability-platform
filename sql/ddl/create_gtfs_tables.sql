@@ -19,7 +19,7 @@ CREATE TABLE stops(
 );
 
 CREATE TABLE trips(
-    stop_id TEXT PRIMARY KEY,
+    trip_id TEXT PRIMARY KEY,
     route_id TEXT,
     service_id TEXT,
     trip_headsign TEXT,
@@ -36,6 +36,7 @@ CREATE TABLE stop_times(
     departure_time TEXT,
     stop_id TEXT,
     stop_sequence INTEGER,
+    PRIMARY KEY(trip_id, stop_sequence),
     CONSTRAINT fk_stop_times_trips
         FOREIGN KEY(trip_id)
         REFERENCES trips(trip_id),
