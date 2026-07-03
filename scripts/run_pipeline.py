@@ -1,6 +1,7 @@
 from transit_pipeline.ingestion.fetch_gtfs_static import fetch_gtfs_static
 from transit_pipeline.ingestion.extract_gtfs_static import extract_gtfs_static
 from transit_pipeline.transformation.transform_gtfs_static import transform_gtfs_static
+from transit_pipeline.loading.load_silver_to_postgres import load_silver_to_postgres
 
 def main():
     print("Starting Adelaide Transit ETL pipeline...")
@@ -13,6 +14,9 @@ def main():
 
     print("Step 3: Transforming GTFS static files to silver layer...")
     transform_gtfs_static()
+
+    print("Step 4: Loading Silver tables into PostgreSQL...")
+    load_silver_to_postgres()
 
     print("Pipeline completed successfully.")
 
