@@ -13,7 +13,6 @@ The warehouse contains four core GTFS static tables:
 
 These tables represent the scheduled public transport network and provide the foundation for future route reliability monitoring and delay prediction.
 
-At this stage, the project focuses on static schedule data. Real-time delay data will be added later using GTFS Realtime feeds.
 
 ## Table Relationships
 
@@ -190,3 +189,46 @@ Add this section to `README.md`:
 - [Data Sources](docs/data_sources.md)
 - [Data Model](docs/data_model.md)
 ```
+## Current Completed Pipeline
+
+The current local pipeline supports the complete GTFS static batch ETL flow:
+
+```text
+Adelaide Metro GTFS Static Feed
+        ↓
+Python ingestion
+        ↓
+Raw layer: downloaded GTFS ZIP
+        ↓
+Bronze layer: extracted GTFS text files
+        ↓
+Silver layer: cleaned GTFS CSV tables
+        ↓
+PostgreSQL warehouse
+        ↓
+Analytics SQL queries
+```
+
+### Completed Components
+
+* GTFS static feed ingestion
+* Raw, bronze, and silver local data layers
+* GTFS extraction automation
+* Static GTFS transformation using pandas
+* PostgreSQL schema for `routes`, `stops`, `trips`, and `stop_times`
+* Python loader from silver CSVs to PostgreSQL
+* Data model documentation
+* Static schedule analytics SQL queries
+
+### Current Warehouse Tables
+
+* `routes`
+* `stops`
+* `trips`
+* `stop_times`
+
+### Current Scope
+
+The current version supports schedule-based analysis only.
+
+Delay analysis will be added later using GTFS Realtime data.
