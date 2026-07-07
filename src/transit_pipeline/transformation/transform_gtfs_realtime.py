@@ -25,7 +25,31 @@ def transform_vehicle_positions() -> Path:
     if df.empty:
         raise ValueError("No vehicle position records found in GTFS Realtime feed.")
 
+    df = df.rename(columns={"timestamp": "vehicle_timestamp"})
+    df["vehicle_datetime"] = pd.to_datetime(
+        df["vehicle_timestamp"],
+        unit="s",
+        utc=True,
+        errors="coerce"
+    )
     df["ingestion_file"] = pb_file_path.name
+
+    final_columns = [
+        "entity_id",
+        "trip_id",
+        "route_id",
+        "vehicle_id",
+        "vehicle_label",
+        "latitude",
+        "longitude",
+        "bearing",
+        "speed",
+        "vehicle_timestamp",
+        "vehicle_datetime",
+        "ingestion_file"
+    ]
+
+    df = df[final_columns]
 
     output_file_path = SILVER_REALTIME_DIR / "vehicle_positions.csv"
     df.to_csv(output_file_path, index=False)
