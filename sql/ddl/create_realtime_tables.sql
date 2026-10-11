@@ -6,7 +6,7 @@ CREATE TABLE vehicle_positions (
     entity_id TEXT,
     trip_id TEXT,
     route_id TEXT,
-    vehicle_id TEXT,
+    vehicle_id TEXT NOT NULL,
     vehicle_label TEXT,
 
     latitude NUMERIC(10, 7),
@@ -14,9 +14,11 @@ CREATE TABLE vehicle_positions (
     bearing NUMERIC(10, 4),
     speed NUMERIC(10, 4),
 
-    vehicle_timestamp BIGINT,
+    vehicle_timestamp BIGINT NOT NULL,
     vehicle_datetime TIMESTAMP,
 
     ingestion_file TEXT,
     ingested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+    CONSTRAINT uq_vehicle_timestamp UNIQUE (vehicle_id, vehicle_timestamp)
 );

@@ -55,9 +55,32 @@ def load_vehicle_positions(connection) -> None:
         "ingestion_file",
     ]
 
-    df = df[columns]
+    df = df[columns].copy()
 
-    records = [tuple(row) for row in df.to_numpy()]
+    # Convert source timestamps to nullable integers
+    df["vehicle_timestamp"] = pd.to_numeric(
+        df["vehicle_timestamp"],
+        errors = "coerce"
+    ).astype("Int64")
+
+    # Reject records without a vehicle ID or timestamp
+    invalid_rows = (
+        df["vehicle_id"].isna() | (df["vehicle_id"].astype(str).str.strip() == "")
+        | df["vehicle_timestamp"].isna()
+    )
+
+    invalid_count = int(invalid_rows.sum())
+
+    if invalid_count > 0:
+        raise ValueError(
+            f"Found {invalid_count} vehicle records with missing IDs or timestamps."
+        )
+
+    # Convert missing pandas values to Python None
+    df = df.astype(object).where(pd.notna(df), None)
+
+    # Convert dataframe rows into tuples for PostgreSQL
+    records = list(df.itertuples(index = False, name = None))
 
     insert_query = """
         INSERT INTO vehicle_positions (
@@ -75,13 +98,20 @@ def load_vehicle_positions(connection) -> None:
             ingestion_file
         )
         VALUES %s
+        ON CONFLICT (vehicle_id, vehicle_timestamp) DO NOTHING
     """
 
     with connection.cursor() as cursor:
-        execute_values(cursor, insert_query, records)
+        inserted_rows = execute_values(
+            cursor,
+            insert_query + "RETURNING position_id",
+            records,
+            fetch=True
+        )
 
-    print(f"Loaded {len(records)} rows into vehicle_positions")
-
+    print(f"Records received: {len(records)}")
+    print(f"New records inserted: {len(inserted_rows)}") 
+    print(f"Duplicate records skipped: {len(records) - len(inserted_rows)}")
 
 def load_realtime_to_postgres() -> None:
     """

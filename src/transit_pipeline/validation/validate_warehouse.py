@@ -139,6 +139,18 @@ def validate_warehouse() -> None:
                     """,
                 ),
                 (
+                    "vehicle_positions should not contain duplicate observations",
+                    """
+                    SELECT COUNT(*)
+                    FROM (
+                        SELECT vehicle_id, vehicle_timestamp
+                        FROM vehicle_positions
+                        GROUP BY vehicle_id, vehicle_timestamp
+                        HAVING COUNT(*) > 1
+                    ) AS duplicates;
+                    """,
+                ),
+                (
                     "stop_times should not reference missing stops",
                     """
                     SELECT COUNT(*)

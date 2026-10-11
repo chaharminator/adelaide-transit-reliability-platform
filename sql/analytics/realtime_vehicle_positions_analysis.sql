@@ -10,7 +10,7 @@ FROM vehicle_positions;
 -- 2. Latest realtime ingestion timestamp
 SELECT
     MAX(ingested_at) AS latest_ingested_at
-FROM vahicle_positions;
+FROM vehicle_positions;
 
 -- 3. Latest source vehicle timestamp
 SELECT
@@ -46,7 +46,7 @@ SELECT
     speed,
     vehicle_datetime,
     ingested_at
-FROM vehicle_postiions
+FROM vehicle_positions
 WHERE speed = 0
 ORDER BY ingested_at DESC
 LIMIT 20;
